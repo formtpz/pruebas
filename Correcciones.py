@@ -182,23 +182,59 @@ def Correcciones(usuario, puesto):
 # ----- Procesos ---- #
     
     if procesos_3:
-      placeholder1_3.empty()
-      placeholder2_3.empty()
-      
-      st.session_state.Procesos=False
-      st.session_state.Postcampo_CC_FMI=False
+    placeholder1_3.empty()
+    placeholder2_3.empty()
     
-    perfil=pd.read_sql(f"select perfil from usuarios where usuario ='{usuario}'",uri)
-    perfil= perfil.loc[0,'perfil']
+    st.session_state.Procesos=False
+    st.session_state.Postcampo_CC_FMI=False
 
-    if perfil=="1":        
-                    
-      Procesos.Procesos1(usuario,puesto)
+perfil=pd.read_sql(f"select perfil from usuarios where usuario ='{usuario}'",uri)
+perfil= perfil.loc[0,'perfil']
+
+if perfil=="1":        
                 
-    elif perfil=="2":        
-                    
-      Procesos.Procesos2(usuario,puesto)   
+  Procesos.Procesos1(usuario,puesto)
+            
+elif perfil=="2":        
+                
+  Procesos.Procesos2(usuario,puesto)   
 
-    elif perfil=="3":  
+elif perfil=="3":  
 
-      Procesos.Procesos3(usuario,puesto)       
+  Procesos.Procesos3(usuario,puesto)
+El problema principal es:
+
+Estás llamando a Procesos.ProcesosX fuera del if procesos_3: → eso se ejecuta siempre, incluso si no presionaste el botón.
+
+No limpias correctamente los placeholders ni actualizas el st.session_state para regresar.
+
+Solución: integrar todo dentro del if procesos_3: y limpiar todo
+python
+Copiar código
+# ----- Procesos ---- #
+placeholder2_3 = st.sidebar.empty()
+procesos_3 = placeholder2_3.button("Procesos", key="procesos_3")
+
+if procesos_3:
+    # Limpiar la pantalla actual
+    placeholder1_3.empty()
+    placeholder2_3.empty()
+    st.empty()
+    st.session_state.Correcciones = False  # tu estado actual
+    st.session_state.Procesos = True
+
+    # Consultar perfil del usuario
+    perfil_df = pd.read_sql(f"SELECT perfil FROM usuarios WHERE usuario ='{usuario}'", con)
+    perfil = perfil_df.loc[0, 'perfil']
+
+    # Redirigir según perfil
+    if perfil == "1":
+        Procesos.Procesos1(usuario, puesto)
+    elif perfil == "2":
+        Procesos.Procesos2(usuario, puesto)
+    elif perfil == "3":
+        Procesos.Procesos3(usuario, puesto)
+
+    return 
+
+    i
