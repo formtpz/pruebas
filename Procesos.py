@@ -25,7 +25,7 @@ def Procesos1(usuario,puesto):
         bonos_extras_2 = placeholder5_2.button("Bonos y Horas Extras",key="bonos_extras_2")
 
         ph_correcciones = st.sidebar.empty()
-        correciones = ph_correcciones.button("Solicitud Correcciones",key="correcciones")
+        correcciones = ph_correcciones.button("Solicitud Correcciones",key="correcciones")
         
         placeholder6_2 = st.sidebar.empty()
         salir_2 = placeholder6_2.button("Salir",key="salir_2")
