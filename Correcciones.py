@@ -188,3 +188,17 @@ def Correcciones(usuario, puesto):
       st.session_state.Procesos=False
       st.session_state.Postcampo_CC_FMI=False
     
+    perfil=pd.read_sql(f"select perfil from usuarios where usuario ='{usuario}'",uri)
+    perfil= perfil.loc[0,'perfil']
+
+    if perfil=="1":        
+                    
+      Procesos.Procesos1(usuario,puesto)
+                
+    elif perfil=="2":        
+                    
+      Procesos.Procesos2(usuario,puesto)   
+
+    elif perfil=="3":  
+
+      Procesos.Procesos3(usuario,puesto)       
