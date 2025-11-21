@@ -4,6 +4,7 @@ import psycopg2
 from datetime import datetime
 import pytz
 from urllib.parse import urlparse
+import Procesos
 
 
 def Correcciones(usuario, puesto):
