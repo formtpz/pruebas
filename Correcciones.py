@@ -54,8 +54,7 @@ def Correcciones(usuario, puesto):
 
     # ----- Consultar reportes del usuario ----- #
     query = f"""
-        SELECT id, fecha, proceso, unidad_asignacion AS municipio, tipo, produccion,
-               horas, estado, observaciones
+        SELECT *
         FROM registro
         WHERE usuario = '{usuario}'
           AND fecha BETWEEN '{fecha_inicio}' AND '{fecha_fin}'
@@ -89,7 +88,7 @@ def Correcciones(usuario, puesto):
     if tipo_correccion == "Modificar valor":
         columna = st.selectbox(
             "Selecciona la columna que deseas corregir",
-            ["unidad_asignacion", "tipo", "produccion", "horas", "estado", "observaciones"]
+            ["fecha", "proceso", "produccion", "horas", "estado", "observaciones"]
         )
 
         nuevo_valor = st.text_input("Ingresa el nuevo valor")
