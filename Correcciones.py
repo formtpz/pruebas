@@ -82,9 +82,21 @@ def Correcciones(usuario, puesto):
     st.subheader("Reportes encontrados")
     st.dataframe(df, use_container_width=True)
     
-    if df.empty:
-        st.info("No tienes reportes en el rango seleccionado.")
-        return
+   
+
+    dfo = pd.read_sql(queryotros, con)
+
+    st.subheader("Otros Registros encontrados")
+    st.dataframe(dfo, use_container_width=True)
+    
+    
+
+    dfc = pd.read_sql(querycapacita, con)
+
+    st.subheader("Capacitaciones encontradas")
+    st.dataframe(dfc, use_container_width=True)
+    
+   
 
 
         
