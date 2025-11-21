@@ -102,7 +102,7 @@ def Correcciones(usuario, puesto):
     
     if dfc.empty:
         st.info("No tienes reportes en el rango seleccionado.")
-        return
+        
 
     # ----- Seleccionar ID para corregir o eliminar ----- #
     st.subheader("Solicitar corrección o eliminación")
