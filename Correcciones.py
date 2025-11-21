@@ -108,6 +108,10 @@ def Correcciones(usuario, puesto):
         )
 
         nuevo_valor = st.text_input("Ingresa el nuevo valor")
+    
+    else tipo_correccion == "Eliminar reporte":
+        descripcion1 = st.radio("Tipo de corrección:", ("duplicado", "otros"))
+    
 
     # ----- Enviar solicitud ----- #
     if st.button("Enviar Solicitud"):
@@ -121,7 +125,7 @@ def Correcciones(usuario, puesto):
             solicitud = "Modificar"
 
         else:
-            descripcion = st.radio("Tipo de corrección:", ("duplicado", "otros"))
+            descripcion=descripcion1
             solicitud = "Eliminar"
 
         insert_query = f"""
