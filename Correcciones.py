@@ -146,8 +146,8 @@ def Correcciones(usuario, puesto):
             solicitud = "Eliminar"
 
         insert_query = f"""
-            INSERT INTO correcciones (usuario, nombre, tipo_error, id_asociado, fecha, solucion, tabla, estado)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
+            INSERT INTO correcciones (usuario, nombre, tipo_error, id_asociado, fecha, solucion, tabla, columna, nuevo_valor, estado)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
         """
 
         cursor.execute(insert_query, (
@@ -158,6 +158,8 @@ def Correcciones(usuario, puesto):
             marca,
             solicitud,
             tabla,
+            columna,
+            nuevo_valor,
             "Pendiente"
         ))
 
