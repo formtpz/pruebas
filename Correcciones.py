@@ -26,8 +26,8 @@ def Correcciones(usuario, puesto):
     )
 
     # ----- Procesos ---- #
-    placeholder1_3 = st.sidebar.empty()
-    menu_3 = placeholder1_3.button("Menu", key="menu_3")
+    placeholder1_3= st.sidebar.empty()
+    titulo= placeholder1_3.title("Menú")
     placeholder2_3 = st.sidebar.empty()
     procesos_3 = placeholder2_3.button("Procesos", key="procesos_3")
 
