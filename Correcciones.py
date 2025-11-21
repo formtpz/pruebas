@@ -121,9 +121,7 @@ def Correcciones(usuario, puesto):
             solicitud = "Modificar"
 
         else:
-            descripcion = st.radio(
-                "Tipo de corrección:",
-                ("duplicado", "otros")
+            descripcion = st.radio("Tipo de corrección:", ("duplicado", "otros"))
             solicitud = "Eliminar"
 
         insert_query = f"""
