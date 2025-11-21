@@ -179,6 +179,12 @@ def Correcciones(usuario, puesto):
             st.info("Solicitud de eliminación registrada.")
             
 #----------------fin----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-    # ----- Seleccionar ID para corregir o eliminar ----- #
+# ----- Procesos ---- #
+    
+    if procesos_3:
+      placeholder1_3.empty()
+      placeholder2_3.empty()
+      
+      st.session_state.Procesos=False
+      st.session_state.Postcampo_CC_FMI=False
     
