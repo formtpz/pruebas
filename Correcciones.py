@@ -81,20 +81,7 @@ def Correcciones(usuario, puesto):
 
     st.subheader("Reportes encontrados")
     st.dataframe(df, use_container_width=True)
-
     
-    df = pd.read_sql(queryotros, con)
-
-    st.subheader("Otros encontrados")
-    st.dataframe(df, use_container_width=True)
-
-    
-    df = pd.read_sql(querycapacita, con)
-
-    st.subheader("Capacitaciones encontradas")
-    st.dataframe(df, use_container_width=True)
-
-
     if df.empty:
         st.info("No tienes reportes en el rango seleccionado.")
         return
@@ -131,13 +118,17 @@ def Correcciones(usuario, puesto):
 
         if tipo_correccion == "Modificar valor":
             descripcion = f"Modificar columna '{columna}' por '{nuevo_valor}'"
+            solicitud = "Modificar"
 
         else:
-            descripcion = "Solicitud de eliminación del reporte"
+            descripcion = st.radio(
+                "Tipo de corrección:",
+                ("duplicado", "otros")
+            solicitud = "Eliminar"
 
         insert_query = f"""
-            INSERT INTO correcciones (usuario, nombre, tipo_correccion, id_asociado, fecha, estado)
-            VALUES (%s, %s, %s, %s, %s, %s);
+            INSERT INTO correcciones (usuario, nombre, tipo_error, id_asociado, fecha, observacion, tabla, solicitud)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
         """
 
         cursor.execute(insert_query, (
@@ -146,7 +137,9 @@ def Correcciones(usuario, puesto):
             descripcion,
             id_reporte,
             marca,
-            "Pendiente"
+            "Pendiente",
+            "registros",
+            solicitud
         ))
 
         con.commit()
@@ -157,3 +150,35 @@ def Correcciones(usuario, puesto):
             st.info(f"Corrección solicitada: cambiar **{columna}** → **{nuevo_valor}**")
         else:
             st.info("Solicitud de eliminación registrada.")
+            
+#----------------fin--------------
+
+    #otros registros#
+    dfo = pd.read_sql(queryotros, con)
+
+    st.subheader("Otros encontrados")
+    st.dataframe(dfo, use_container_width=True)
+    
+    if dfo.empty:
+        st.info("No tienes reportes en el rango seleccionado.")
+        return
+    # ----- Seleccionar ID para corregir o eliminar ----- #
+   
+#fin#
+    
+
+    #capacitaciones#
+    dfc = pd.read_sql(querycapacita, con)
+
+    st.subheader("Capacitaciones encontradas")
+    st.dataframe(dfc, use_container_width=True)
+    
+    if dfc.empty:
+        st.info("No tienes reportes en el rango seleccionado.")
+        return
+
+
+   
+
+    # ----- Seleccionar ID para corregir o eliminar ----- #
+    
