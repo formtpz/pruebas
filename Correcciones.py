@@ -30,8 +30,32 @@ def Correcciones(usuario, puesto):
     placeholder1_3= st.sidebar.empty()
     titulo= placeholder1_3.title("Menú")
 
+
     placeholder2_3 = st.sidebar.empty()
-    procesos_3 = placeholder2_3.button("Procesos",key="procesos_3")
+    procesos_3 = placeholder2_3.button("Procesos", key="procesos_3")
+
+    if procesos_3:
+    # Limpiar la pantalla actual
+      placeholder1_3.empty()
+      placeholder2_3.empty()
+      st.empty()
+      st.session_state.Correcciones = False  # tu estado actual
+      st.session_state.Procesos = True
+
+    # Consultar perfil del usuario
+      perfil_df = pd.read_sql(f"SELECT perfil FROM usuarios WHERE usuario ='{usuario}'", con)
+      perfil = perfil_df.loc[0, 'perfil']
+
+    # Redirigir según perfil
+      if perfil == "1":
+          Procesos.Procesos1(usuario, puesto)
+      elif perfil == "2":
+          Procesos.Procesos2(usuario, puesto)
+      elif perfil == "3":
+          Procesos.Procesos3(usuario, puesto)
+
+      return  # esto corta la ejecución de Correcciones
+
       
 
      # esto corta la ejecución de Correcciones
@@ -185,25 +209,4 @@ def Correcciones(usuario, puesto):
             st.info("Solicitud de eliminación registrada.")
             
 #----------------fin----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    if procesos_3:
-    # Limpiar la pantalla actual
-      placeholder1_3.empty()
-      placeholder2_3.empty()
-      st.empty()
-      st.session_state.Correcciones = False  # tu estado actual
-      st.session_state.Procesos = True
-
-      perfil=pd.read_sql(f"select perfil from usuarios where usuario ='{usuario}'",uri)
-      perfil= perfil.loc[0,'perfil']
-
-      if perfil=="1":        
-                    
-        Procesos.Procesos1(usuario,puesto)
-                
-      elif perfil=="2":        
-                    
-        Procesos.Procesos2(usuario,puesto)   
-
-      elif perfil=="3":  
-
-        Procesos.Procesos3(usuario,puesto)  
+   
