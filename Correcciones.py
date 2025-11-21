@@ -42,17 +42,21 @@ def Correcciones(usuario, puesto):
       st.session_state.Correcciones = False  # tu estado actual
       st.session_state.Procesos = True
 
-    # Consultar perfil del usuario
-      perfil_df = pd.read_sql(f"SELECT perfil FROM usuarios WHERE usuario ='{usuario}'", con)
-      perfil = perfil_df.loc[0, 'perfil']
+      perfil=pd.read_sql(f"select perfil from usuarios where usuario ='{usuario}'",uri)
+      perfil= perfil.loc[0,'perfil']
 
-    # Redirigir según perfil
-      if perfil == "1":
-          Procesos.Procesos1(usuario, puesto)
-      elif perfil == "2":
-          Procesos.Procesos2(usuario, puesto)
-      elif perfil == "3":
-          Procesos.Procesos3(usuario, puesto)
+      if perfil=="1":        
+                    
+        Procesos.Procesos1(usuario,puesto)
+                
+      elif perfil=="2":        
+                    
+        Procesos.Procesos2(usuario,puesto)   
+
+      elif perfil=="3":  
+
+        Procesos.Procesos3(usuario,puesto) 
+
       return
 
         # esto corta la ejecución de Correcciones
