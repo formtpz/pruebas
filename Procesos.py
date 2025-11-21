@@ -176,6 +176,33 @@ def Procesos1(usuario,puesto):
             st.session_state.Bonos_Extras=True
             Bonos_Extras.Bonos_Extras(usuario,puesto)
 
+        # ----- Correcciones ---- #
+
+        elif correcciones:
+
+            placeholder1_2.empty()
+            placeholder2_2.empty()
+            placeholder3_2.empty()
+            placeholder4_2.empty()
+            placeholder5_2.empty()
+            ph_correcciones.empty()
+            placeholder6_2.empty()
+            placeholder7_2.empty()
+            placeholder8_2.empty()
+            placeholder9_2.empty()
+            placeholder10_2.empty()
+            placeholder11_2.empty()
+            placeholder12_2.empty()
+            placeholder13_2.empty()
+            placeholder14_2.empty()
+            placeholder15_2.empty()
+            placeholder16_2.empty()
+            placeholder17_2.empty()
+            placeholder18_2.empty()
+            st.session_state.Procesos=True
+            st.session_state.Correcciones=True
+            Correcciones.Correcciones(usuario,puesto)
+
         # ----- Salir ---- #
 
         elif salir_2:
