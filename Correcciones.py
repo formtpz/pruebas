@@ -117,7 +117,7 @@ def Correcciones(usuario, puesto):
         ("Modificar valor", "Eliminar reporte"))
 
     tabla = st.radio("Motivo:", ("registros", "otros_registros", "capacitaciones"
-    )
+    ))
 
     nuevo_valor = None
 
