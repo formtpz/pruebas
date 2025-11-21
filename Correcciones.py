@@ -109,7 +109,7 @@ def Correcciones(usuario, puesto):
 
         nuevo_valor = st.text_input("Ingresa el nuevo valor")
     
-    elif tipo_accion == "Eliminar reporte":
+    elif tipo_correccion == "Eliminar reporte":
         descripcion1 = st.radio("Tipo de corrección:", ("duplicado", "otros"))
     
 
