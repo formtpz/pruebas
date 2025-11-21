@@ -57,7 +57,7 @@ def Correcciones(usuario, puesto):
 
         Procesos.Procesos3(usuario,puesto) 
 
-      return
+    
 
         # esto corta la ejecución de Correcciones
 
@@ -87,7 +87,7 @@ def Correcciones(usuario, puesto):
 
     if fecha_inicio > fecha_fin:
         st.error("La fecha de inicio no puede ser mayor que la fecha final.")
-        return
+     
 
     # ----- Obtener nombre del usuario ----- #
     df_nombre = pd.read_sql(f"SELECT nombre FROM usuarios WHERE usuario = '{usuario}'", con)
