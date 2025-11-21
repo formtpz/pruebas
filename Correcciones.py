@@ -86,22 +86,7 @@ def Correcciones(usuario, puesto):
         st.info("No tienes reportes en el rango seleccionado.")
         return
 
-    dfo = pd.read_sql(queryotros, con)
 
-    st.subheader("Otros Registros encontrados")
-    st.dataframe(dfo, use_container_width=True)
-    
-    if dfo.empty:
-        st.info("No tienes reportes en el rango seleccionado.")
-        return
-
-    dfc = pd.read_sql(querycapacita, con)
-
-    st.subheader("Capacitaciones encontradas")
-    st.dataframe(dfc, use_container_width=True)
-    
-    if dfc.empty:
-        st.info("No tienes reportes en el rango seleccionado.")
         
 
     # ----- Seleccionar ID para corregir o eliminar ----- #
