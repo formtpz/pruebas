@@ -95,7 +95,7 @@ def Correcciones(usuario, puesto):
         st.info("No tienes reportes en el rango seleccionado.")
         return
 
-    dfc = pd.read_sql(query, con)
+    dfc = pd.read_sql(querycapacita, con)
 
     st.subheader("Capacitaciones encontradas")
     st.dataframe(dfc, use_container_width=True)
@@ -107,9 +107,7 @@ def Correcciones(usuario, puesto):
     # ----- Seleccionar ID para corregir o eliminar ----- #
     st.subheader("Solicitar corrección o eliminación")
 
-    id_reporte = st.selectbox(
-        "Selecciona el ID del reporte",
-        df["id"].tolist()
+    id_reporte = st.numberinput("Ingrese el ID del Reporte")
     )
 
     tipo_correccion = st.radio(
