@@ -86,6 +86,24 @@ def Correcciones(usuario, puesto):
         st.info("No tienes reportes en el rango seleccionado.")
         return
 
+    dfo = pd.read_sql(queryotros, con)
+
+    st.subheader("Otros Registros encontrados")
+    st.dataframe(dfo, use_container_width=True)
+    
+    if dfo.empty:
+        st.info("No tienes reportes en el rango seleccionado.")
+        return
+
+    dfc = pd.read_sql(query, con)
+
+    st.subheader("Capacitaciones encontradas")
+    st.dataframe(dfc, use_container_width=True)
+    
+    if dfc.empty:
+        st.info("No tienes reportes en el rango seleccionado.")
+        return
+
     # ----- Seleccionar ID para corregir o eliminar ----- #
     st.subheader("Solicitar corrección o eliminación")
 
@@ -97,14 +115,17 @@ def Correcciones(usuario, puesto):
     tipo_correccion = st.radio(
         "Tipo de corrección:",
         ("Modificar valor", "Eliminar reporte")
+
+    tabla = st.radio("Motivo:", ("registros", "otros_registros", "capacitaciones"
     )
 
     nuevo_valor = None
 
     if tipo_correccion == "Modificar valor":
-        columna = st.selectbox(
-            "Selecciona la columna que deseas corregir",
-            ["fecha", "proceso", "produccion", "horas", "estado", "observaciones"]
+        
+        descripcion1 = st.radio("Motivo:", ("Estado Incorrecto", "Fecha Incorrecta","Hora Incorrecta", "Predios Incorrectos","Caracteres Especiales" "#Paquete Incorrecto","Usuario Incorrecto","Tipo Incorrecto", "Unidad de Asignación Incorrecto")
+        columna = st.text_input(
+            "indique la columna que deseas corregir"
         )
 
         nuevo_valor = st.text_input("Ingresa el nuevo valor")
@@ -122,7 +143,7 @@ def Correcciones(usuario, puesto):
         marca = datetime.now(pytz.timezone("America/Guatemala")).strftime("%Y-%m-%d %H:%M:%S")
 
         if tipo_correccion == "Modificar valor":
-            descripcion = f"Modificar columna '{columna}' por '{nuevo_valor}'"
+            descripcion=descripcion1
             solicitud = "Modificar"
 
         else:
@@ -140,9 +161,9 @@ def Correcciones(usuario, puesto):
             descripcion,
             id_reporte,
             marca,
-            "Pendiente",
-            "registros",
-            solicitud
+            solicitud,
+            tabla,
+            "Pendiente"
         ))
 
         con.commit()
@@ -154,34 +175,7 @@ def Correcciones(usuario, puesto):
         else:
             st.info("Solicitud de eliminación registrada.")
             
-#----------------fin--------------
-
-    #otros registros#
-    dfo = pd.read_sql(queryotros, con)
-
-    st.subheader("Otros encontrados")
-    st.dataframe(dfo, use_container_width=True)
-    
-    if dfo.empty:
-        st.info("No tienes reportes en el rango seleccionado.")
-        return
-    # ----- Seleccionar ID para corregir o eliminar ----- #
-   
-#fin#
-    
-
-    #capacitaciones#
-    dfc = pd.read_sql(querycapacita, con)
-
-    st.subheader("Capacitaciones encontradas")
-    st.dataframe(dfc, use_container_width=True)
-    
-    if dfc.empty:
-        st.info("No tienes reportes en el rango seleccionado.")
-        return
-
-
-   
+#----------------fin----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     # ----- Seleccionar ID para corregir o eliminar ----- #
     
