@@ -1,7 +1,7 @@
 # ----- Librerías ---- #
 
 import streamlit as st
-import Historial, Capacitacion, Otros_Registros, Bonos_Extras, Salir, FMI, Consulta_Campo,Restitucion_Tierras,Revision_Segregados,Estado_UIT_Hito,Precampo, CC_Precampo, Preparacion_Insumos, Revision_Campo, Validacion, CC_Validacion
+import Correciones, Historial, Capacitacion, Otros_Registros, Bonos_Extras, Salir, FMI, Consulta_Campo,Restitucion_Tierras,Revision_Segregados,Estado_UIT_Hito,Precampo, CC_Precampo, Preparacion_Insumos, Revision_Campo, Validacion, CC_Validacion
 
 def Procesos1(usuario,puesto):
 
@@ -26,6 +26,9 @@ def Procesos1(usuario,puesto):
 
         placeholder6_2 = st.sidebar.empty()
         salir_2 = placeholder6_2.button("Salir",key="salir_2")
+
+        ph_correcciones = st.sidebar.empty()
+        correciones = ph_correcciones.button("Solicitud Correcciones",key="correcciones")
 
         placeholder7_2 = st.empty()
         procesos_2 = placeholder7_2.title("Procesos")
