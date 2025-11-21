@@ -53,6 +53,7 @@ def Correcciones(usuario, puesto):
           Procesos.Procesos2(usuario, puesto)
       elif perfil == "3":
           Procesos.Procesos3(usuario, puesto)
+      return
 
         # esto corta la ejecución de Correcciones
 
