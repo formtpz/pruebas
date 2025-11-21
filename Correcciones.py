@@ -104,7 +104,7 @@ def Correcciones(usuario, puesto):
     # ----- Seleccionar ID para corregir o eliminar ----- #
     st.subheader("Solicitar corrección o eliminación")
 
-    id_reporte = st.number_input("Ingrese el ID del Reporte")
+    id_reporte = st.text_input("Ingrese el ID del Reporte")
     
 
     tipo_correccion = st.radio(
