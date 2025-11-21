@@ -54,7 +54,7 @@ def Correcciones(usuario, puesto):
 
     # ----- Consultar reportes del usuario ----- #
     query = f"""
-        SELECT id AS ID_Reporte, marca, usuario, nombre, fecha, unidad_asignacion, tipo, produccion, aprobados, rechazados, horas, uit, hito, lote, area, efes, informales, paquete, observaciones, zona, tipo_calidad, operador_cc, tipo_de_errores, conteo_de_errores
+        SELECT id AS id_reporte, marca, usuario, nombre, fecha, unidad_asignacion, tipo, produccion, aprobados, rechazados, horas, uit, hito, lote, area, efes, informales, paquete, observaciones, zona, tipo_calidad, operador_cc, tipo_de_errores, conteo_de_errores
         FROM registro
         WHERE usuario = '{usuario}'
           AND fecha BETWEEN '{fecha_inicio}' AND '{fecha_fin}'
