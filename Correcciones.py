@@ -33,7 +33,7 @@ def Correcciones(usuario, puesto):
 
     placeholder2_3 = st.sidebar.empty()
     procesos_3 = placeholder2_3.button("Regresar", key="procesos_3")
-    if puesto != "TGD":
+    if puesto != "Coordinador":
         page = st.empty()
         with page.container():
         
@@ -181,12 +181,144 @@ def Correcciones(usuario, puesto):
                     st.info("Solicitud de eliminación registrada.")
     
         pass #fin del placeholder global
+    elif puesto == "Coordinador":
+        page = st.empty()
+        with page.container():
+            st.header("Correcciones Pendientes")
+
+            filtro = st.selectbox("Mostrar:", ["Todos", "Pendiente"])
+
+            query_corr = """SELECT id, usuario, nombre, tipo_error, id_asociado, fecha, solucion,
+               tabla, columna, nuevo_valor, estado FROM correcciones"""
+
+            if filtro == "Pendiente":
+                query_corr += " WHERE estado = 'Pendiente'"
+
+            df_corr_original = pd.read_sql(query_corr, con)
+
+            df_corr_editado = st.data_editor(
+                df_corr_original,
+                use_container_width=True,
+                num_rows="fixed"
+            )
+
+    # =====================================================
+    # 2) TABLA: REGISTROS AFECTADOS (EDITABLE)
+    # =====================================================
+
+            st.header("Registros afectados")
+
+    # IDs asociados a correcciones sobre la tabla 'registros' y pendientes
+            ids_pendientes = pd.read_sql(
+                """
+                SELECT id_asociado 
+                FROM correcciones
+                WHERE tabla='registros' AND estado='Pendiente'
+                """,
+                con
+            )
+
+            if len(ids_pendientes) == 0:
+                st.info("No hay registros afectados por correcciones pendientes.")
+                return
+
+    # Convertir a tupla para usar en SQL
+            ids_tuple = tuple(ids_pendientes['id_asociado'].astype(int).tolist())
+
+            query_registros = f"""
+                SELECT *
+                FROM registro
+                WHERE id IN {ids_tuple}
+                ORDER BY id
+            """
+
+            df_reg_original = pd.read_sql(query_registros, con)
+
+            df_reg_editado = st.data_editor(
+                df_reg_original,
+                use_container_width=True,
+                num_rows="fixed"
+            )
+
+    # =====================================================
+    # 3) BOTÓN GUARDAR CAMBIOS
+    # =====================================================
+
+            if st.button("Guardar todos los cambios"):
+
+                cursor = con.cursor()
+
+        # --------------------------------------------
+        # GUARDAR CAMBIOS EN TABLA CORRECCIONES
+        # --------------------------------------------
+                cambios_corr = df_corr_editado.compare(df_corr_original)
+
+                if not cambios_corr.empty:
+
+                    for idx in cambios_corr.index.get_level_values(0).unique():
+
+                        fila = df_corr_editado.loc[idx]
+
+                        set_clause = ", ".join(
+                            [f"{col} = %s" for col in df_corr_original.columns
+                             if fila[col] != df_corr_original.loc[idx][col]]
+                        )
+
+                        valores = [
+                            fila[col] for col in df_corr_original.columns
+                            if fila[col] != df_corr_original.loc[idx][col]
+                        ]
+
+                        query = f"""
+                            UPDATE correcciones
+                            SET {set_clause}
+                            WHERE id = %s
+                        """
+
+                        cursor.execute(query, valores + [fila["id"]])
+
+        # --------------------------------------------
+        # GUARDAR CAMBIOS EN TABLA REGISTRO
+        # --------------------------------------------
+                cambios_reg = df_reg_editado.compare(df_reg_original)
+
+                if not cambios_reg.empty:
+
+                    for idx in cambios_reg.index.get_level_values(0).unique():
+
+                        fila = df_reg_editado.loc[idx]
+
+                        set_clause = ", ".join(
+                            [f"{col} = %s" for col in df_reg_original.columns
+                             if fila[col] != df_reg_original.loc[idx][col]]
+                        )
+
+                        valores = [
+                            fila[col] for col in df_reg_original.columns
+                            if fila[col] != df_reg_original.loc[idx][col]
+                        ]
+
+                        query = f"""
+                            UPDATE registro
+                            SET {set_clause}
+                            WHERE id = %s
+                        """
+
+                        cursor.execute(query, valores + [fila["id"]])
+
+                con.commit()
+                st.success("Todos los cambios han sido guardados correctamente 🎉")
+
+        pass
     
     if procesos_3:
     # Limpiar la pantalla actual
       placeholder1_3.empty()
       placeholder2_3.empty()
-      if puesto != "TGD":
+      if puesto != "Coordinador":
+          page.empty()
+          st.empty()
+      elif puesto == "Coordinador":
           page.empty()
           st.empty()
       st.session_state.Procesos = False
