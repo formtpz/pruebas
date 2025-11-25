@@ -189,8 +189,9 @@ def Correcciones(usuario, puesto):
       if puesto != "TGD":
           page.empty()
           st.empty()
+      st.session_state.Procesos = False
       st.session_state.Correcciones = False  # tu estado actual
-      st.session_state.Procesos = True
+      
 
       perfil=pd.read_sql(f"select perfil from usuarios where usuario ='{usuario}'",uri)
       perfil= perfil.loc[0,'perfil']
