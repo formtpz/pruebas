@@ -33,39 +33,11 @@ def Correcciones(usuario, puesto):
 
     placeholder2_3 = st.sidebar.empty()
     procesos_3 = placeholder2_3.button("Procesos", key="procesos_3")
-
-    if procesos_3:
-    # Limpiar la pantalla actual
-      placeholder1_3.empty()
-      placeholder2_3.empty()
-      st.empty()
-      st.session_state.Correcciones = False  # tu estado actual
-      st.session_state.Procesos = True
-
-      perfil=pd.read_sql(f"select perfil from usuarios where usuario ='{usuario}'",uri)
-      perfil= perfil.loc[0,'perfil']
-
-      if perfil=="1":        
-                    
-        Procesos.Procesos1(usuario,puesto)
-                
-      elif perfil=="2":        
-                    
-        Procesos.Procesos2(usuario,puesto)   
-
-      elif perfil=="3":  
-
-        Procesos.Procesos3(usuario,puesto) 
-
     
-
-        # esto corta la ejecución de Correcciones
-
+    page = st.empty()
+    with page.container():
+    #inicio del codigo
       
-
-     # esto corta la ejecución de Correcciones
-
-
     st.title("Corrección de Reportes")
 
     st.write(
@@ -167,8 +139,7 @@ def Correcciones(usuario, puesto):
         nuevo_valor = st.text_input("Ingresa el nuevo valor")
     
     elif tipo_correccion == "Eliminar reporte":
-        descripcion1 = st.radio("Motivo:", ("Reporte Duplicado", "Reporte Incorrecto","Reporte de Prueba", "Proceso Incorrecto", "Municipio Incorrecto"
-  ))
+        descripcion1 = st.radio("Motivo:", ("Reporte Duplicado", "Reporte Incorrecto","Reporte de Prueba", "Proceso Incorrecto", "Municipio Incorrecto"))
     
 
     # ----- Enviar solicitud ----- #
@@ -212,6 +183,30 @@ def Correcciones(usuario, puesto):
             st.info(f"Corrección solicitada: cambiar **{columna}** → **{nuevo_valor}**")
         else:
             st.info("Solicitud de eliminación registrada.")
-            
+    
+    pass #fin del placeholder global
+    
+    if procesos_3:
+    # Limpiar la pantalla actual
+      placeholder1_3.empty()
+      placeholder2_3.empty()
+      st.empty()
+      st.session_state.Correcciones = False  # tu estado actual
+      st.session_state.Procesos = True
+
+      perfil=pd.read_sql(f"select perfil from usuarios where usuario ='{usuario}'",uri)
+      perfil= perfil.loc[0,'perfil']
+
+      if perfil=="1":        
+                    
+        Procesos.Procesos1(usuario,puesto)
+                
+      elif perfil=="2":        
+                    
+        Procesos.Procesos2(usuario,puesto)   
+
+      elif perfil=="3":  
+
+        Procesos.Procesos3(usuario,puesto)         
 #----------------fin----------------------------------------------------------------------------------------------------------------------------------------------------------------------
    
