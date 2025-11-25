@@ -134,7 +134,7 @@ def Correcciones(usuario, puesto):
                 nuevo_valor = st.text_input("Ingresa el nuevo valor")
     
             elif tipo_correccion == "Eliminar reporte":
-               descripcion1 = st.radio("Motivo:", ("Reporte Duplicado", "Reporte Incorrecto","Reporte de Prueba", "Proceso Incorrecto", "Municipio Incorrecto"))
+                descripcion1 = st.radio("Motivo:", ("Reporte Duplicado", "Reporte Incorrecto","Reporte de Prueba", "Proceso Incorrecto", "Municipio Incorrecto"))
                 columna = 'N/A'
                 nuevo_valor = '0'
 
