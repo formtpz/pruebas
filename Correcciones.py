@@ -184,131 +184,231 @@ def Correcciones(usuario, puesto):
     elif puesto == "Coordinador":
         page = st.empty()
         with page.container():
+            # =====================================================
+            # 1) TABLA: CORRECCIONES PENDIENTES (EDITABLE)
+            # =====================================================
+    	    
             st.header("Correcciones Pendientes")
-
+    	    
             filtro = st.selectbox("Mostrar:", ["Todos", "Pendiente"])
-
-            query_corr = """SELECT id, usuario, nombre, tipo_error, id_asociado, fecha, solucion,
-               tabla, columna, nuevo_valor, estado FROM correcciones"""
-
+    	    
+            query_corr = """
+                SELECT id, usuario, nombre, tipo_error, id_asociado, fecha, solucion,
+                       tabla, columna, nuevo_valor, estado
+                FROM correcciones
+            """
+    	    
             if filtro == "Pendiente":
                 query_corr += " WHERE estado = 'Pendiente'"
-
+    	    
             df_corr_original = pd.read_sql(query_corr, con)
-
+    	    
             df_corr_editado = st.data_editor(
                 df_corr_original,
                 use_container_width=True,
                 num_rows="fixed"
             )
-
-    # =====================================================
-    # 2) TABLA: REGISTROS AFECTADOS (EDITABLE)
-    # =====================================================
-
-            st.header("Registros afectados")
-
-    # IDs asociados a correcciones sobre la tabla 'registros' y pendientes
-            ids_pendientes = pd.read_sql(
-                """
+    	    
+    	    
+            # =====================================================
+            # 2) TABLAS DE REGISTROS AFECTADOS SEGÚN CORRECCIONES
+            # =====================================================
+    	    
+            st.divider()
+            st.subheader("Registros afectados (registros, otros_registros, capacitaciones)")
+    	    
+            # ---------------------------------------
+            # IDs PENDIENTES POR TABLA
+            # ---------------------------------------
+            ids_reg = pd.read_sql("""
                 SELECT id_asociado 
                 FROM correcciones
                 WHERE tabla='registros' AND estado='Pendiente'
-                """,
-                con
-            )
-
-            if len(ids_pendientes) == 0:
-                st.info("No hay registros afectados por correcciones pendientes.")
-                return
-
-    # Convertir a tupla para usar en SQL
-            ids_tuple = tuple(ids_pendientes['id_asociado'].astype(int).tolist())
-
-            query_registros = f"""
-                SELECT *
-                FROM registro
-                WHERE id IN {ids_tuple}
-                ORDER BY id
-            """
-
-            df_reg_original = pd.read_sql(query_registros, con)
-
-            df_reg_editado = st.data_editor(
-                df_reg_original,
-                use_container_width=True,
-                num_rows="fixed"
-            )
-
-    # =====================================================
-    # 3) BOTÓN GUARDAR CAMBIOS
-    # =====================================================
-
+            """, con)
+    	    
+            ids_otros = pd.read_sql("""
+                SELECT id_asociado 
+                FROM correcciones
+                WHERE tabla='otros_registros' AND estado='Pendiente'
+            """, con)
+    	    
+            ids_cap = pd.read_sql("""
+                SELECT id_asociado 
+                FROM correcciones
+                WHERE tabla='capacitaciones' AND estado='Pendiente'
+            """, con)
+    	    
+            # ----------------------------
+            # 2.1) REGISTROS (editable)
+            # ----------------------------
+            if len(ids_reg) > 0:
+                st.subheader("Tabla: registros")
+    	    
+                ids_tuple = tuple(ids_reg['id_asociado'].astype(int).tolist())
+    	    
+                df_reg_original = pd.read_sql(
+                    f"SELECT * FROM registro WHERE id IN {ids_tuple}",
+                    con
+                )
+    	    
+                df_reg_editado = st.data_editor(
+                    df_reg_original,
+                    use_container_width=True,
+                    num_rows="fixed"
+                )
+            else:
+                df_reg_original = pd.DataFrame()
+                df_reg_editado = pd.DataFrame()
+                st.info("No hay correcciones pendientes para la tabla *registros*.")
+    	    
+            # ----------------------------
+            # 2.2) OTROS_REGISTROS (editable)
+            # ----------------------------
+    	    
+            if len(ids_otros) > 0:
+                st.subheader("Tabla: otros_registros")
+    	    
+                ids_tuple = tuple(ids_otros['id_asociado'].astype(int).tolist())
+    	    
+                df_otros_original = pd.read_sql(
+                    f"SELECT * FROM otros_registros WHERE id IN {ids_tuple}",
+                    con
+                )
+    	    
+                df_otros_editado = st.data_editor(
+                    df_otros_original,
+                    use_container_width=True,
+                    num_rows="fixed"
+                )
+            else:
+                df_otros_original = pd.DataFrame()
+                df_otros_editado = pd.DataFrame()
+                st.info("No hay correcciones pendientes para la tabla *otros_registros*.")
+    	    
+            # ----------------------------
+            # 2.3) CAPACITACIONES (editable)
+            # ----------------------------
+    	    
+            if len(ids_cap) > 0:
+                st.subheader("Tabla: capacitaciones")
+    	    
+                ids_tuple = tuple(ids_cap['id_asociado'].astype(int).tolist())
+    	    
+                df_cap_original = pd.read_sql(
+                    f"SELECT * FROM capacitaciones WHERE id IN {ids_tuple}",
+                    con
+                )
+    	    
+                df_cap_editado = st.data_editor(
+                    df_cap_original,
+                    use_container_width=True,
+                    num_rows="fixed"
+                )
+            else:
+                df_cap_original = pd.DataFrame()
+                df_cap_editado = pd.DataFrame()
+                st.info("No hay correcciones pendientes para la tabla *capacitaciones*.")
+    	    
+    	    
+            # =====================================================
+            # 3) GUARDAR CAMBIOS PARA TODAS LAS TABLAS
+            # =====================================================
+    	    
             if st.button("Guardar todos los cambios"):
-
-                cursor = con.cursor()
-
-        # --------------------------------------------
-        # GUARDAR CAMBIOS EN TABLA CORRECCIONES
-        # --------------------------------------------
+    	    
+                # --------------------------------------------
+                # GUARDAR CORRECCIONES
+                # --------------------------------------------
                 cambios_corr = df_corr_editado.compare(df_corr_original)
-
+    	    
                 if not cambios_corr.empty:
-
+    	    
                     for idx in cambios_corr.index.get_level_values(0).unique():
-
+    	    
                         fila = df_corr_editado.loc[idx]
-
+    	    
                         set_clause = ", ".join(
                             [f"{col} = %s" for col in df_corr_original.columns
                              if fila[col] != df_corr_original.loc[idx][col]]
                         )
-
+    	    
                         valores = [
                             fila[col] for col in df_corr_original.columns
                             if fila[col] != df_corr_original.loc[idx][col]
                         ]
-
-                        query = f"""
-                            UPDATE correcciones
-                            SET {set_clause}
-                            WHERE id = %s
-                        """
-
-                        cursor.execute(query, valores + [fila["id"]])
-
-        # --------------------------------------------
-        # GUARDAR CAMBIOS EN TABLA REGISTRO
-        # --------------------------------------------
-                cambios_reg = df_reg_editado.compare(df_reg_original)
-
-                if not cambios_reg.empty:
-
-                    for idx in cambios_reg.index.get_level_values(0).unique():
-
-                        fila = df_reg_editado.loc[idx]
-
-                        set_clause = ", ".join(
-                            [f"{col} = %s" for col in df_reg_original.columns
-                             if fila[col] != df_reg_original.loc[idx][col]]
+    	    
+                        cursor.execute(
+                            f"UPDATE correcciones SET {set_clause} WHERE id = %s",
+                            valores + [fila["id"]]
                         )
-
-                        valores = [
-                            fila[col] for col in df_reg_original.columns
-                            if fila[col] != df_reg_original.loc[idx][col]
-                        ]
-
-                        query = f"""
-                            UPDATE registro
-                            SET {set_clause}
-                            WHERE id = %s
-                        """
-
-                        cursor.execute(query, valores + [fila["id"]])
-
+    	    
+                # --------------------------------------------
+                # GUARDAR REGISTRO
+                # --------------------------------------------
+                if not df_reg_original.empty:
+                    cambios_reg = df_reg_editado.compare(df_reg_original)
+    	    
+                    if not cambios_reg.empty:
+                        for idx in cambios_reg.index.get_level_values(0).unique():
+                            fila = df_reg_editado.loc[idx]
+                            set_clause = ", ".join(
+                                [f"{col} = %s" for col in df_reg_original.columns
+                                 if fila[col] != df_reg_original.loc[idx][col]]
+                            )
+                            valores = [
+                                fila[col] for col in df_reg_original.columns
+                                if fila[col] != df_reg_original.loc[idx][col]
+                            ]
+                            cursor.execute(
+                                f"UPDATE registro SET {set_clause} WHERE id = %s",
+                                valores + [fila["id"]]
+                            )
+    	    
+                # --------------------------------------------
+                # GUARDAR OTROS_REGISTROS
+                # --------------------------------------------
+                if not df_otros_original.empty:
+                    cambios_otros = df_otros_editado.compare(df_otros_original)
+    	    
+                    if not cambios_otros.empty:
+                        for idx in cambios_otros.index.get_level_values(0).unique():
+                            fila = df_otros_editado.loc[idx]
+                            set_clause = ", ".join(
+                                [f"{col} = %s" for col in df_otros_original.columns
+                                 if fila[col] != df_otros_original.loc[idx][col]]
+                            )
+                            valores = [
+                                fila[col] for col in df_otros_original.columns
+                                if fila[col] != df_otros_original.loc[idx][col]]
+                            cursor.execute(
+                                f"UPDATE otros_registros SET {set_clause} WHERE id = %s",
+                                valores + [fila["id"]]
+                            )
+    	    
+                # --------------------------------------------
+                # GUARDAR CAPACITACIONES
+                # --------------------------------------------
+                if not df_cap_original.empty:
+                    cambios_cap = df_cap_editado.compare(df_cap_original)
+    	    
+                    if not cambios_cap.empty:
+                        for idx in cambios_cap.index.get_level_values(0).unique():
+                            fila = df_cap_editado.loc[idx]
+                            set_clause = ", ".join(
+                                [f"{col} = %s" for col in df_cap_original.columns
+                                 if fila[col] != df_cap_original.loc[idx][col]]
+                            )
+                            valores = [
+                                fila[col] for col in df_cap_original.columns
+                                if fila[col] != df_cap_original.loc[idx][col]]
+                            cursor.execute(
+                                f"UPDATE capacitaciones SET {set_clause} WHERE id = %s",
+                                valores + [fila["id"]]
+                            )
+    	    
                 con.commit()
-                st.success("Todos los cambios han sido guardados correctamente 🎉")
-
+                st.success("Cambios guardados correctamente 🎉")Notepad++ v8.8.8 new features, regression fixes & bug-fixes:
+    
         pass
     
     if procesos_3:
