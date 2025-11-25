@@ -186,6 +186,7 @@ def Correcciones(usuario, puesto):
     # Limpiar la pantalla actual
       placeholder1_3.empty()
       placeholder2_3.empty()
+      page.empty()
       st.empty()
       st.session_state.Correcciones = False  # tu estado actual
       st.session_state.Procesos = True
