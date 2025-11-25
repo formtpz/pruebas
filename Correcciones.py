@@ -135,7 +135,7 @@ def Correcciones(usuario, puesto):
     
         elif tipo_correccion == "Eliminar reporte":
             descripcion1 = st.radio("Motivo:", ("Reporte Duplicado", "Reporte Incorrecto","Reporte de Prueba", "Proceso Incorrecto", "Municipio Incorrecto"))
-    
+            columna = 'N/A'
 
         # ----- Enviar solicitud ----- #
         if st.button("Enviar Solicitud"):
