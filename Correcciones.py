@@ -243,14 +243,26 @@ def Correcciones(usuario, puesto):
             # ----------------------------
             if len(ids_reg) > 0:
                 st.subheader("Tabla: registros")
+
+                ids_list = ids_cap['id_asociado'].astype(int).tolist()
+
+                if len(ids_list) == 0:
+                    df_reg_original = pd.DataFrame()
+                else:
+                    if len(ids_list) == 1:
+                        # SOLO 1 ID → usar WHERE id = X
+                        query = f"SELECT * FROM registros WHERE id = {ids_list[0]}"
+                    else:
+                       # VARIOS IDs → usar IN (x,y,z)
+                        ids_tuple = tuple(ids_list)
+                        query = f"SELECT * FROM registros WHERE id IN {ids_tuple}"
+
+                    df_reg_original = pd.read_sql(query, con)
+
     	    
                 ids_tuple = tuple(ids_reg['id_asociado'].astype(int).tolist())
     	    
-                df_reg_original = pd.read_sql(
-                    f"SELECT * FROM registro WHERE id IN {ids_tuple}",
-                    con
-                )
-    	    
+                   	    
                 df_reg_editado = st.data_editor(
                     df_reg_original,
                     use_container_width=True,
