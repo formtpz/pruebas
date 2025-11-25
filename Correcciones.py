@@ -25,7 +25,7 @@ def Correcciones(usuario, puesto):
         password=pwd,
         port=port_id
     )
-
+    cursor = con.cursor() 
     # ----- Procesos ---- #
     placeholder1_3= st.sidebar.empty()
     titulo= placeholder1_3.title("Menú")
