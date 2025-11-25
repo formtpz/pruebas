@@ -184,97 +184,70 @@ def Correcciones(usuario, puesto):
     elif puesto == "Coordinador":
         page = st.empty()
         with page.container():
+            
             # =====================================================
-            # 1) TABLA: CORRECCIONES PENDIENTES (EDITABLE)
+            # 1) TABLA: CORRECCIONES (EDITABLE)
             # =====================================================
-    	    
+        
             st.header("Correcciones Pendientes")
-    	    
+        
             filtro = st.selectbox("Mostrar:", ["Todos", "Pendiente"])
-    	    
+        
             query_corr = """
                 SELECT id, usuario, nombre, tipo_error, id_asociado, fecha, solucion,
                        tabla, columna, nuevo_valor, estado
                 FROM correcciones
             """
-    	    
+        
             if filtro == "Pendiente":
                 query_corr += " WHERE estado = 'Pendiente'"
-    	    
+        
+            # Leer datos originales
             df_corr_original = pd.read_sql(query_corr, con)
-    	    
+        
+            # Tabla editable
             df_corr_editado = st.data_editor(
                 df_corr_original,
                 use_container_width=True,
                 num_rows="fixed"
             )
-    	    
-    	    
+        
             # =====================================================
-            # 2) TABLAS DE REGISTROS AFECTADOS SEGÚN CORRECCIONES
+            # 2) GUARDAR CAMBIOS
             # =====================================================
-    	    
-            st.divider()
-            st.subheader("Registros afectados (registros, otros_registros, capacitaciones)")
-    	    
-            # ---------------------------------------
-            # IDs PENDIENTES POR TABLA
-            # ---------------------------------------
-            ids_reg = pd.read_sql("""
-                SELECT id_asociado 
-                FROM correcciones
-                WHERE tabla='registros' AND estado='Pendiente'
-            """, con)
-    	    
-            ids_otros = pd.read_sql("""
-                SELECT id_asociado 
-                FROM correcciones
-                WHERE tabla='otros_registros' AND estado='Pendiente'
-            """, con)
-    	    
-            ids_cap = pd.read_sql("""
-                SELECT id_asociado 
-                FROM correcciones
-                WHERE tabla='capacitaciones' AND estado='Pendiente'
-            """, con)
-    	    
-              	    
-            # =====================================================
-            # 3) GUARDAR CAMBIOS PARA TODAS LAS TABLAS
-            # =====================================================
-    	    
-            if st.button("Guardar todos los cambios"):
-    	    
-                # --------------------------------------------
-                # GUARDAR CORRECCIONES
-                # --------------------------------------------
+        
+            if st.button("Guardar cambios"):
+        
                 cambios_corr = df_corr_editado.compare(df_corr_original)
-    	    
-                if not cambios_corr.empty:
-    	    
-                    for idx in cambios_corr.index.get_level_values(0).unique():
-    	    
-                        fila = df_corr_editado.loc[idx]
-    	    
-                        set_clause = ", ".join(
-                            [f"{col} = %s" for col in df_corr_original.columns
-                             if fila[col] != df_corr_original.loc[idx][col]]
-                        )
-    	    
-                        valores = [
-                            fila[col] for col in df_corr_original.columns
-                            if fila[col] != df_corr_original.loc[idx][col]
-                        ]
-    	    
-                        cursor.execute(
-                            f"UPDATE correcciones SET {set_clause} WHERE id = %s",
-                            valores + [fila["id"]]
-                        )
-    	    
-                                
+        
+                if cambios_corr.empty:
+                    st.info("No hay cambios para guardar.")
+                    return
+        
+                for idx in cambios_corr.index.get_level_values(0).unique():
+        
+                    fila = df_corr_editado.loc[idx]
+        
+                    set_clause = ", ".join(
+                        [f"{col} = %s" for col in df_corr_original.columns
+                         if fila[col] != df_corr_original.loc[idx][col]]
+                    )
+        
+                    valores = [
+                        fila[col] for col in df_corr_original.columns
+                        if fila[col] != df_corr_original.loc[idx][col]
+                    ]
+        
+                    sql = f"""
+                        UPDATE correcciones
+                        SET {set_clause}
+                        WHERE id = %s
+                    """
+        
+                    cursor.execute(sql, valores + [fila["id"]])
+        
                 con.commit()
                 st.success("Cambios guardados correctamente 🎉")
-    
         pass
     
     if procesos_3:
