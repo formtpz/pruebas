@@ -9,7 +9,32 @@ import Procesos
 
 def Correcciones(usuario, puesto):
 
-    # ----- Conexión a la BD ----- #
+    # ================================
+    #   1. REDIRECCIÓN SI YA CAMBIÓ A PROCESOS
+    # ================================
+    if st.session_state.get("Procesos", False):
+
+        # limpiar pantalla
+        st.sidebar.empty()
+        st.empty()
+
+        uri = st.secrets.db_credentials.URI
+        perfil_df = pd.read_sql(f"SELECT perfil FROM usuarios WHERE usuario = '{usuario}'", uri)
+        perfil = perfil_df.loc[0, "perfil"]
+
+        if perfil == "1":
+            Procesos.Procesos1(usuario, puesto)
+        elif perfil == "2":
+            Procesos.Procesos2(usuario, puesto)
+        elif perfil == "3":
+            Procesos.Procesos3(usuario, puesto)
+
+        return  # muy importante
+
+
+    # ================================
+    #   2. CONEXIÓN BD
+    # ================================
     uri = st.secrets.db_credentials.URI
     result = urlparse(uri)
     hostname = result.hostname
@@ -26,27 +51,44 @@ def Correcciones(usuario, puesto):
         port=port_id
     )
 
-    # ----- Procesos ---- #
-    placeholder1_3= st.sidebar.empty()
-    titulo= placeholder1_3.title("Menú")
 
+    # ================================
+    #   3. SIDEBAR
+    # ================================
+    placeholder1_3 = st.sidebar.empty()
+    titulo = placeholder1_3.title("Menú")
 
     placeholder2_3 = st.sidebar.empty()
     procesos_3 = placeholder2_3.button("Procesos", key="procesos_3")
-    
+
+
+    # ================================
+    #   4. CUANDO PRESIONA PROCESOS (solo marcar el estado y salir)
+    # ================================
+    if procesos_3:
+        st.session_state.Correcciones = False
+        st.session_state.Procesos = True
+        return  # NO limpiar aquí (se limpia en el ciclo siguiente)
+
+
+    # ================================
+    #   5. CONTENIDO COMPLETO EN PLACEHOLDER GLOBAL
+    # ================================
     page = st.empty()
+
     with page.container():
-        
+
         st.title("Corrección de Reportes")
 
-        st.write("""Aquí puedes visualizar tus reportes, filtrar por fecha y solicitar correcciones
-        o eliminaciones si encuentras errores.""")
+        st.write("""
+            Aquí puedes visualizar tus reportes, filtrar por fecha 
+            y solicitar correcciones o eliminaciones si encuentras errores.
+        """)
 
-        # ----- Filtro de fechas ----- #
+        # Filtros
         st.subheader("Filtrar reportes por fecha")
 
         col1, col2 = st.columns(2)
-
         with col1:
             fecha_inicio = st.date_input("Fecha inicio")
         with col2:
@@ -54,15 +96,21 @@ def Correcciones(usuario, puesto):
 
         if fecha_inicio > fecha_fin:
             st.error("La fecha de inicio no puede ser mayor que la fecha final.")
-     
 
-        # ----- Obtener nombre del usuario ----- #
-        df_nombre = pd.read_sql(f"SELECT nombre FROM usuarios WHERE usuario = '{usuario}'", con)
+        # Obtener nombre
+        df_nombre = pd.read_sql(
+            f"SELECT nombre FROM usuarios WHERE usuario = '{usuario}'",
+            con
+        )
         nombre = df_nombre.loc[0, "nombre"]
 
-        # ----- Consultar reportes del usuario ----- #
+        # ================================
+        #   CONSULTAS
+        # ================================
         query = f"""
-            SELECT id, marca, usuario, nombre, fecha, tipo, produccion, aprobados, rechazados, horas, uit, hito, lote, area, efes, informales, paquete, observaciones, zona, tipo_calidad, operador_cc, tipo_de_errores, conteo_de_errores
+            SELECT id, marca, usuario, nombre, fecha, tipo, produccion, aprobados, rechazados,
+                   horas, uit, hito, lote, area, efes, informales, paquete, observaciones, zona,
+                   tipo_calidad, operador_cc, tipo_de_errores, conteo_de_errores
             FROM registro
             WHERE usuario = '{usuario}'
               AND fecha BETWEEN '{fecha_inicio}' AND '{fecha_fin}'
@@ -86,124 +134,92 @@ def Correcciones(usuario, puesto):
         """
 
         df = pd.read_sql(query, con)
-
         st.subheader("Reportes encontrados")
         st.dataframe(df, use_container_width=True)
-    
-   
 
         dfo = pd.read_sql(queryotros, con)
-
         st.subheader("Otros Registros encontrados")
         st.dataframe(dfo, use_container_width=True)
-    
-    
 
         dfc = pd.read_sql(querycapacita, con)
-
         st.subheader("Capacitaciones encontradas")
         st.dataframe(dfc, use_container_width=True)
-    
-   
 
 
-        
-
-        # ----- Seleccionar ID para corregir o eliminar ----- #
+        # ================================
+        #   Solicitud de corrección
+        # ================================
         st.subheader("Solicitar corrección o eliminación")
 
         id_reporte = st.text_input("Ingrese el ID del Reporte")
-    
 
         tipo_correccion = st.radio(
             "Tipo de corrección:",
-            ("Modificar valor", "Eliminar reporte"))
-    
-        tabla = st.radio("Tabla:", ("registros", "otros_registros", "capacitaciones"
-        ))
+            ("Modificar valor", "Eliminar reporte")
+        )
+
+        tabla = st.radio(
+            "Tabla:",
+            ("registros", "otros_registros", "capacitaciones")
+        )
 
         nuevo_valor = None
 
         if tipo_correccion == "Modificar valor":
-        
-            descripcion1 = st.radio("Motivo:", ("Estado Incorrecto", "Fecha Incorrecta","Hora Incorrecta", "Predios Incorrectos","Caracteres Especiales" "#Paquete Incorrecto","Usuario Incorrecto","Tipo Incorrecto", "Unidad de Asignación Incorrecto"))
-            columna = st.text_input(
-                "indique la columna que deseas corregir"
+
+            descripcion1 = st.radio(
+                "Motivo:",
+                ("Estado Incorrecto", "Fecha Incorrecta", "Hora Incorrecta",
+                 "Predios Incorrectos", "Caracteres Especiales", "#Paquete Incorrecto",
+                 "Usuario Incorrecto", "Tipo Incorrecto",
+                 "Unidad de Asignación Incorrecto")
             )
 
+            columna = st.text_input("Indique la columna que deseas corregir")
             nuevo_valor = st.text_input("Ingresa el nuevo valor")
-    
-        elif tipo_correccion == "Eliminar reporte":
-            descripcion1 = st.radio("Motivo:", ("Reporte Duplicado", "Reporte Incorrecto","Reporte de Prueba", "Proceso Incorrecto", "Municipio Incorrecto"))
-            columna = 'N/A'
-            nuevo_valor = '0'
 
-        # ----- Enviar solicitud ----- #
+        else:  # eliminar
+            descripcion1 = st.radio(
+                "Motivo:",
+                ("Reporte Duplicado", "Reporte Incorrecto", "Reporte de Prueba",
+                 "Proceso Incorrecto", "Municipio Incorrecto")
+            )
+            columna = "N/A"
+            nuevo_valor = "0"
+
+        # ================================
+        #   Enviar solicitud
+        # ================================
         if st.button("Enviar Solicitud"):
 
             cursor = con.cursor()
 
-            marca = datetime.now(pytz.timezone("America/Guatemala")).strftime("%Y-%m-%d %H:%M:%S")
+            marca = datetime.now(
+                pytz.timezone("America/Guatemala")
+            ).strftime("%Y-%m-%d %H:%M:%S")
 
-            if tipo_correccion == "Modificar valor":
-                descripcion=descripcion1
-                solicitud = "Modificar"
+            solicitud = "Modificar" if tipo_correccion == "Modificar valor" else "Eliminar"
+            descripcion = descripcion1
 
-            else:
-                descripcion=descripcion1
-                solicitud = "Eliminar"
-
-            insert_query = f"""
-                INSERT INTO correcciones (usuario, nombre, tipo_error, id_asociado, fecha, solucion, tabla, columna, nuevo_valor, estado)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+            insert_query = """
+                INSERT INTO correcciones 
+                (usuario, nombre, tipo_error, id_asociado, fecha, solucion,
+                 tabla, columna, nuevo_valor, estado)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);
             """
 
             cursor.execute(insert_query, (
-                usuario,
-                nombre,
-                descripcion,
-                id_reporte,
-                marca,
-                solicitud,
-                tabla,
-                columna,
-                nuevo_valor,
-                "Pendiente"
+                usuario, nombre, descripcion, id_reporte,
+                marca, solicitud, tabla, columna,
+                nuevo_valor, "Pendiente"
             ))
 
             con.commit()
 
             st.success("Solicitud registrada correctamente 🎉")
 
-            if tipo_correccion == "Modificar valor":
+            if solicitud == "Modificar":
                 st.info(f"Corrección solicitada: cambiar **{columna}** → **{nuevo_valor}**")
             else:
                 st.info("Solicitud de eliminación registrada.")
-    
-    pass #fin del placeholder global
-    
-    if procesos_3:
-    # Limpiar la pantalla actual
-      placeholder1_3.empty()
-      placeholder2_3.empty()
-      page.empty()
-      st.empty()
-      st.session_state.Correcciones = False  # tu estado actual
-      st.session_state.Procesos = True
 
-      perfil=pd.read_sql(f"select perfil from usuarios where usuario ='{usuario}'",uri)
-      perfil= perfil.loc[0,'perfil']
-
-      if perfil=="1":        
-                    
-        Procesos.Procesos1(usuario,puesto)
-                
-      elif perfil=="2":        
-                    
-        Procesos.Procesos2(usuario,puesto)   
-
-      elif perfil=="3":  
-
-        Procesos.Procesos3(usuario,puesto)         
-#----------------fin----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-   
