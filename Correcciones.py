@@ -32,7 +32,7 @@ def Correcciones(usuario, puesto):
 
 
     placeholder2_3 = st.sidebar.empty()
-    procesos_3 = placeholder2_3.button("Procesos", key="procesos_3")
+    procesos_3 = placeholder2_3.button("Regresar", key="procesos_3")
     if puesto != "TGD":
         page = st.empty()
         with page.container():
