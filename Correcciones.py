@@ -202,10 +202,8 @@ def Correcciones(usuario, puesto):
             if filtro == "Pendiente":
                 query_corr += " WHERE estado = 'Pendiente'"
         
-            # Leer datos originales
             df_corr_original = pd.read_sql(query_corr, con)
         
-            # Tabla editable
             df_corr_editado = st.data_editor(
                 df_corr_original,
                 use_container_width=True,
@@ -228,15 +226,22 @@ def Correcciones(usuario, puesto):
         
                     fila = df_corr_editado.loc[idx]
         
-                    set_clause = ", ".join(
-                        [f"{col} = %s" for col in df_corr_original.columns
-                         if fila[col] != df_corr_original.loc[idx][col]]
-                    )
-        
-                    valores = [
-                        fila[col] for col in df_corr_original.columns
+                    # Detectar columnas con cambios
+                    columnas_cambiadas = [
+                        col for col in df_corr_original.columns
                         if fila[col] != df_corr_original.loc[idx][col]
                     ]
+        
+                    set_clause = ", ".join([f"{col} = %s" for col in columnas_cambiadas])
+        
+                    # Convertir valores numpy → python
+                    valores = [
+                        fila[col].item() if hasattr(fila[col], "item") else fila[col]
+                        for col in columnas_cambiadas
+                    ]
+        
+                    # Convertir ID a tipo Python
+                    id_python = fila["id"].item() if hasattr(fila["id"], "item") else fila["id"]
         
                     sql = f"""
                         UPDATE correcciones
@@ -244,7 +249,7 @@ def Correcciones(usuario, puesto):
                         WHERE id = %s
                     """
         
-                    cursor.execute(sql, valores + [fila["id"]])
+                    cursor.execute(sql, valores + [id_python])
         
                 con.commit()
                 st.success("Cambios guardados correctamente 🎉")
