@@ -33,7 +33,7 @@ def Correcciones(usuario, puesto):
 
     placeholder2_3 = st.sidebar.empty()
     procesos_3 = placeholder2_3.button("Procesos", key="procesos_3")
-    if puesto <> "TGD"
+    if puesto != "TGD"
         page = st.empty()
         with page.container():
         
@@ -186,7 +186,7 @@ def Correcciones(usuario, puesto):
     # Limpiar la pantalla actual
       placeholder1_3.empty()
       placeholder2_3.empty()
-      if puesto <> "TGB":
+      if puesto != "TGD":
           page.empty()
           st.empty()
       st.session_state.Correcciones = False  # tu estado actual
