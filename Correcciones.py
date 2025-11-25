@@ -407,7 +407,7 @@ def Correcciones(usuario, puesto):
                             )
     	    
                 con.commit()
-                st.success("Cambios guardados correctamente 🎉")Notepad++ v8.8.8 new features, regression fixes & bug-fixes:
+                st.success("Cambios guardados correctamente 🎉")
     
         pass
     
